@@ -1,0 +1,17 @@
+# Python Bytecode & Cache
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Generated Feature Matrix (Keeps file locally, ignores on GitHub)
+data/asof_features.csv
+
+# Local Streamlit Database Secrets
+.streamlit/secrets.toml
+
+# Virtual Environment & OS Files
+.venv/
+venv/
+.DS_Store
+Thumbs.db 
