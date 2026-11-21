@@ -1,0 +1,9 @@
+archetype,children,model_detected_%,baseline_detected_%,median_delay_model,median_delay_baseline,median_gain_visits,model_only,baseline_only,model_pre_onset_alarm_%,baseline_pre_onset_alarm_%
+gradual_weight_faltering,21.0,85.7,47.6,1.0,3.0,2.0,9.0,1.0,28.6,9.5
+hc_acceleration,9.0,100.0,66.7,1.0,3.0,2.0,3.0,0.0,11.1,22.2
+hc_deceleration,9.0,100.0,77.8,1.0,3.0,2.0,2.0,0.0,22.2,11.1
+multi_indicator_failure,6.0,100.0,66.7,1.0,1.0,0.5,2.0,0.0,0.0,0.0
+progressive_stunting,15.0,93.3,40.0,2.0,3.0,2.0,8.0,0.0,33.3,6.7
+rapid_weight_loss,12.0,100.0,91.7,1.0,2.0,0.5,1.0,0.0,16.7,16.7
+rising_bmi,18.0,83.3,55.6,1.0,3.0,1.5,5.0,0.0,27.8,11.1
+ALL deteriorating,90.0,92.2,60.0,1.0,3.0,1.0,30.0,1.0,23.3,11.1

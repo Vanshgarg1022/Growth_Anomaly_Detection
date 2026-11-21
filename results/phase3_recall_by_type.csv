@@ -1,0 +1,8 @@
+archetype,recall_model,recall_baseline
+gradual_weight_faltering,0.65,0.31
+hc_acceleration,0.761,0.391
+hc_deceleration,0.808,0.404
+multi_indicator_failure,0.76,0.56
+progressive_stunting,0.653,0.194
+rapid_weight_loss,0.79,0.581
+rising_bmi,0.761,0.413
