@@ -7,7 +7,7 @@ trajectory model that tries to flag deterioration earlier than the rule. The fin
 
 <img width="1677" height="503" alt="pipeline" src="https://github.com/user-attachments/assets/356557e9-62d8-412b-92e0-9fc988a41f7a" />
 
-![Pipeline](docs/figures/pipeline.png)
+![Pipeline]
 
 ---
 
@@ -31,7 +31,7 @@ non-deteriorating visits at about the same rate as the WHO rule (0.171 vs 0.198)
 
 <img width="1077" height="592" alt="model_comparison" src="https://github.com/user-attachments/assets/9bbe5441-7973-4608-99a6-75f94e0d0ba1" />
 
-![Model comparison](docs/figures/model_comparison.png)
+![Model comparison]
 
 ### Model comparison (test set)
 
