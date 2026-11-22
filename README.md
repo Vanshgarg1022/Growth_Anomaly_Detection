@@ -5,9 +5,9 @@ trajectory model that tries to flag deterioration earlier than the rule. The fin
 
 > **Trained and evaluated on synthetic data only. Not clinically validated. Not a diagnosis.**
 
-<img width="1677" height="503" alt="pipeline" src="https://github.com/user-attachments/assets/356557e9-62d8-412b-92e0-9fc988a41f7a" />
+<img width="944" height="452" alt="Screenshot 2026-11-22 234027" src="https://github.com/user-attachments/assets/23788731-2050-43b7-9a14-d6de235fece1" />
 
-![Pipeline]
+Figure: System Architecture
 
 ---
 
@@ -29,9 +29,6 @@ non-deteriorating visits at about the same rate as the WHO rule (0.171 vs 0.198)
 | Alert rate, non-deteriorating visits | 0.198 | 0.171 | −0.027 |
 | Non-deteriorating children ever alerted | 40.5% | 41.6% | +1.1 pp |
 
-<img width="1077" height="592" alt="model_comparison" src="https://github.com/user-attachments/assets/9bbe5441-7973-4608-99a6-75f94e0d0ba1" />
-
-![Model comparison]
 
 ### Model comparison (test set)
 
@@ -43,9 +40,6 @@ non-deteriorating visits at about the same rate as the WHO rule (0.171 vs 0.198)
 | Isolation Forest | 0.6468 | 0.4473 | – | – | unsupervised |
 
 Share of positive visits in the test data is 0.24, which is the no-skill level for average precision.
-
-<!-- ADD IMAGE: roc_pr.png -->
-![ROC and precision-recall](docs/figures/roc_pr.png)
 
 ---
 
@@ -62,9 +56,6 @@ Share of deteriorating visits flagged.
 | multi_indicator_failure | 0.56 | 0.76 | +0.20 |
 | progressive_stunting | 0.19 | 0.65 | +0.46 |
 | gradual_weight_faltering | 0.31 | 0.65 | +0.34 |
-
-<!-- ADD IMAGE: recall_by_type.png -->
-![Recall by type](docs/figures/recall_by_type.png)
 
 ---
 
@@ -83,8 +74,8 @@ Per deteriorating test child. Delay is counted in visits from the true onset vis
 | rising_bmi | 18 | 55.6% | 83.3% | 3 | 1 |
 | **All deteriorating** | **90** | **60.0%** | **92.2%** | **3** | **1** |
 
-<!-- ADD IMAGE: early_warning.png -->
-![Early warning](docs/figures/early_warning.png)
+<img width="1684" height="689" alt="early_warning" src="https://github.com/user-attachments/assets/c88b8ef3-093b-4e48-aabc-1121cdf1e2f1" />
+
 
 ---
 
@@ -103,13 +94,10 @@ Permutation importance on test children (drop in average precision when the feat
 | 7 | Weight: slope (z per month) | 0.0076 |
 | 8 | Length/height: slope (z per month) | 0.0072 |
 
-<!-- ADD IMAGE: feature_importance.png -->
-![Feature importance](docs/figures/feature_importance.png)
-
 Each alert in the app comes with a SHAP explanation for that visit:
 
-<!-- ADD IMAGE: shap_example.png -->
-![SHAP example](docs/figures/shap_example.png)
+<img width="1432" height="604" alt="shap_example" src="https://github.com/user-attachments/assets/f8959159-f041-44d1-948d-32b2bfc74366" />
+
 
 ---
 
@@ -138,11 +126,8 @@ The check exposed an error in the first weeks of life. The engine now uses the W
 BMI-for-age with linear interpolation between days. Length/height and head circumference remain on monthly tables with spline
 interpolation. Anthro has no head-circumference output, so that indicator is not covered by this check.
 
-<!-- ADD IMAGE: anthro_validation.png -->
-![Anthro agreement](docs/figures/anthro_validation.png)
+<img width="1112" height="592" alt="anthro_by_age" src="https://github.com/user-attachments/assets/a34bffa9-fe56-4185-8613-c93d3448e838" />
 
-<!-- ADD IMAGE: anthro_by_age.png -->
-![Anthro agreement by age](docs/figures/anthro_by_age.png)
 
 ---
 
@@ -161,12 +146,6 @@ interpolation. Anthro has no head-circumference output, so that indicator is not
 | Alert threshold | 0.292, chosen on validation |
 | Watch band | 0.6 × alert threshold (project-defined) |
 | Automated tests | 115 passing |
-
-<!-- ADD IMAGE: dataset_overview.png -->
-![Dataset](docs/figures/dataset_overview.png)
-
-<!-- ADD IMAGE: trajectory_types.png -->
-![Trajectory types](docs/figures/trajectory_types.png)
 
 ---
 
@@ -190,9 +169,8 @@ interpolation. Anthro has no head-circumference output, so that indicator is not
 
 <!-- ADD IMAGES: app_entry.png, app_risk.png, app_chart.png (optional, from your own run if you prefer) -->
 
-| Entry | Risk summary | Chart |
-|---|---|---|
-| ![Entry](docs/figures/app_entry.png) | ![Risk](docs/figures/app_risk.png) | ![Chart](docs/figures/app_chart.png) |
+Risk summary
+<img width="1280" height="900" alt="app_risk" src="https://github.com/user-attachments/assets/91e8fca9-cf1c-4dd3-bab1-534272d0ad1b" />
 
 ---
 
