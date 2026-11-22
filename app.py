@@ -17,9 +17,12 @@ from sqlalchemy import text
 import db
 from growth.inference import analyze_patient_trajectory, save_analysis_result
 from growth.validation import validate_who_measurement_limits
+from growth import ui
 import who_zscore as who
 
 st.set_page_config(page_title="Paediatric Growth Anomaly System", page_icon="👶", layout="wide")
+
+ui.inject_css()
 
 MAX_AGE_YEARS = 5  # Project scope: 0 to 5 years
 
@@ -171,7 +174,7 @@ def validate_inputs(patient_code, dob, visit_date, weight, height, head_circ, me
 if "selected_code" not in st.session_state:
     st.session_state.selected_code = "S-0001"
 
-st.title("Paediatric Growth Anomaly Early Warning System")
+ui.hero()
 
 tab_entry, tab_hist, tab_risk, tab_report = st.tabs(
     ["Entry", "History & Trajectory", "Risk Summary", "Report Export"]
@@ -181,7 +184,7 @@ tab_entry, tab_hist, tab_risk, tab_report = st.tabs(
 # TAB 1: ENTRY FORM
 # -----------------------------------------------------------------------------
 with tab_entry:
-    st.header("1. Patient Visit Entry")
+    ui.section("Visit entry", "Record a visit. Measurements are checked against WHO limits before anything is saved.")
     
     patient_type = st.radio(
         "Select Entry Workflow:",
@@ -386,7 +389,7 @@ with tab_entry:
 # TAB 2: HISTORY & TRAJECTORY
 # -----------------------------------------------------------------------------
 with tab_hist:
-    st.header("2. Longitudinal Trajectory Views")
+    ui.section("History and trajectory", "How each z-score has moved across visits. Dashed lines mark -2 and +2, dotted lines -3 and +3.")
     code = st.session_state.get("selected_code")
 
     col_sel1, col_sel2 = st.columns([3, 1])
@@ -408,22 +411,8 @@ with tab_hist:
         if res.get("n_visits", 0) > 0:
             df_v = res["df_visits"]
             st.subheader(f"Visit Records ({res['n_visits']} Visits)")
-            st.dataframe(
-                df_v.assign(age_months=df_v["age_months"].round(2))[
-                    [
-                        "visit_date",
-                        "age_months",
-                        "weight_kg",
-                        "height_cm",
-                        "head_circumference_cm",
-                        "waz",
-                        "haz",
-                        "bmiz",
-                        "hcz",
-                    ]
-                ],
-                use_container_width=True,
-            )
+            st.dataframe(ui.visit_table(df_v), use_container_width=True, hide_index=True)
+            st.caption("Amber cells are beyond ±2 SD and red cells beyond ±3 SD of the WHO standard.")
 
             # 2x2 Plotly Trajectory Charts
             fig = make_subplots(
@@ -438,10 +427,10 @@ with tab_hist:
             )
 
             indicators = [
-                ("waz", 1, 1, "blue"),
-                ("haz", 1, 2, "green"),
-                ("bmiz", 2, 1, "purple"),
-                ("hcz", 2, 2, "red"),
+                ("waz", 1, 1, ui.SERIES_COLOURS["waz"]),
+                ("haz", 1, 2, ui.SERIES_COLOURS["haz"]),
+                ("bmiz", 2, 1, ui.SERIES_COLOURS["bmiz"]),
+                ("hcz", 2, 2, ui.SERIES_COLOURS["hcz"]),
             ]
 
             for ind, r, c, color in indicators:
@@ -456,13 +445,14 @@ with tab_hist:
                     row=r,
                     col=c,
                 )
-                fig.add_hline(y=0, line_dash="solid", line_color="gray", opacity=0.5, row=r, col=c)
-                fig.add_hline(y=2.0, line_dash="dash", line_color="orange", row=r, col=c)
-                fig.add_hline(y=-2.0, line_dash="dash", line_color="orange", row=r, col=c)
-                fig.add_hline(y=3.0, line_dash="dot", line_color="red", row=r, col=c)
-                fig.add_hline(y=-3.0, line_dash="dot", line_color="red", row=r, col=c)
+                fig.add_hline(y=0, line_dash="solid", line_color="#9BB3B6", opacity=0.6, row=r, col=c)
+                fig.add_hline(y=2.0, line_dash="dash", line_color="#D9A441", row=r, col=c)
+                fig.add_hline(y=-2.0, line_dash="dash", line_color="#D9A441", row=r, col=c)
+                fig.add_hline(y=3.0, line_dash="dot", line_color="#C2334B", row=r, col=c)
+                fig.add_hline(y=-3.0, line_dash="dot", line_color="#C2334B", row=r, col=c)
 
-            fig.update_layout(height=650, title_text=f"Growth z-Score Trajectories for {code}")
+            fig.update_layout(title_text=f"z-score trajectories for {code}")
+            ui.style_figure(fig)
             st.plotly_chart(fig, use_container_width=True)
         else:
             st.warning(f"No visit records found in database for patient code '{code}'.")
@@ -471,7 +461,7 @@ with tab_hist:
 # TAB 3: RISK SUMMARY & DIAGNOSIS SUPPORT
 # -----------------------------------------------------------------------------
 with tab_risk:
-    st.header("3. Risk Summary & Decision Support")
+    ui.section("Risk summary", "Where this child stands today, and what drove the result.")
     code = st.session_state.get("selected_code")
 
     if code:
@@ -489,25 +479,14 @@ with tab_risk:
 
         n_vis = res.get("n_visits", 0)
 
-        def show_status(label, status):
-            if status == "Potential Growth Anomaly":
-                st.error(f"🚨 **{label}: {status}**")
-            elif status == "Watch":
-                st.warning(f"⚠️ **{label}: {status}**")
-            elif status == "Insufficient history":
-                st.warning(f"⚠️ **{label}: {status}**")
-            else:
-                st.success(f"✅ **{label}: {status}**")
-
         if n_vis == 0:
             st.info(f"No visits found for '{code}'.")
         else:
             if res.get("model_error"):
                 st.error(f"🛑 {res['model_error']}")
 
-            show_status("Overall status", res.get("risk_status", "Insufficient history"))
-            if res.get("alert_source") not in (None, "n/a", "neither"):
-                st.caption(f"Alert raised by: {res['alert_source']}")
+            ui.status_card(res.get("risk_status", "Insufficient history"), res.get("alert_source"),
+                           res.get("rf_prob"), res.get("model_threshold"), res.get("model_watch_threshold"))
 
             col_m1, col_m2, col_m3 = st.columns(3)
             with col_m1:
@@ -537,7 +516,7 @@ with tab_risk:
 # TAB 4: REPORT EXPORT
 # -----------------------------------------------------------------------------
 with tab_report:
-    st.header("4. Clinician Longitudinal Report Export")
+    ui.section("Report export", "A PDF with the visit table, trajectory charts and risk summary for the clinician.")
     code = st.session_state.get("selected_code")
     st.write(f"Generate PDF report summary for patient: **{code}**")
 

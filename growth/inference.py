@@ -122,6 +122,7 @@ def analyze_patient_trajectory(patient_code: str, session) -> dict:
         "model_available": True,
         "model_version": artifact.get("version"),
         "model_threshold": thr,
+        "model_watch_threshold": watch,
         "explanation": explain_single_visit(model, latest_feat),
     })
     result["risk_status"], result["alert_source"] = combine_status(base_status, model_status)
