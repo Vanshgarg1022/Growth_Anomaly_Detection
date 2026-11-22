@@ -11,7 +11,7 @@ Figure: System Architecture
 
 ---
 
-## 1. Results at a glance
+## 1. Results At A Glance
 
 Held-out **test set: 275 children** (seed 42). The alert threshold was chosen on a separate validation split so that the model alerts on
 non-deteriorating visits at about the same rate as the WHO rule (0.171 vs 0.198). The comparison is therefore at a similar alert burden.
@@ -23,76 +23,45 @@ non-deteriorating visits at about the same rate as the WHO rule (0.171 vs 0.198)
 | F1 | 0.384 | 0.644 | +0.261 |
 | Deteriorating children flagged at some point (n = 90) | 60.0% | 92.2% | +32.2 pp |
 | Median delay from true onset to first flag | 3 visits | 1 visit | 2 visits earlier |
-| Median gain per child | – | 1 visit (95% CI 1–2) | – |
-| Children flagged only by one method | 1 | 30 | – |
 | Pre-onset alarms (deteriorating children) | 11.1% | 23.3% | +12.2 pp |
-| Alert rate, non-deteriorating visits | 0.198 | 0.171 | −0.027 |
-| Non-deteriorating children ever alerted | 40.5% | 41.6% | +1.1 pp |
 
 
-### Model comparison (test set)
+### Model Comparison (Test Set)
+Random Forest is the best model (ROC-AUC 0.860, average precision 0.776), ahead of Logistic Regression (0.811, 0.701) and
+Isolation Forest (0.647, 0.447, unsupervised). The app uses the Random Forest at threshold 0.292 (precision 0.578, recall 0.728, F1 0.644).
+The no-skill level for average precision is 0.24, the share of positive visits.
 
-| Model | ROC-AUC | Avg. precision | Precision | Recall | Note |
-|---|---|---|---|---|---|
-| Logistic Regression | 0.8107 | 0.7009 | 0.5543 | 0.6592 | threshold 0.5 |
-| Random Forest | 0.8595 | 0.7757 | 0.8403 | 0.5857 | threshold 0.5 |
-| Random Forest (used in app) | 0.8595 | 0.7757 | 0.5777 | 0.7283 | threshold 0.292, F1 0.6443 |
-| Isolation Forest | 0.6468 | 0.4473 | – | – | unsupervised |
-
-Share of positive visits in the test data is 0.24, which is the no-skill level for average precision.
+The model flags 1 visit earlier than the rule at a median (95% CI 1–2). It flagged 30 children the rule missed, against 1 the other way.
+Both methods alert on non-deteriorating visits at a similar rate (0.171 model, 0.198 rule).
 
 ---
 
-## 2. Recall by trajectory type
+## 2. Recall By Trajectory Type
 
-Share of deteriorating visits flagged.
-
-| Trajectory type | WHO rule | Random Forest | Change |
-|---|---|---|---|
-| hc_deceleration | 0.40 | 0.81 | +0.41 |
-| rapid_weight_loss | 0.58 | 0.79 | +0.21 |
-| rising_bmi | 0.41 | 0.76 | +0.35 |
-| hc_acceleration | 0.39 | 0.76 | +0.37 |
-| multi_indicator_failure | 0.56 | 0.76 | +0.20 |
-| progressive_stunting | 0.19 | 0.65 | +0.46 |
-| gradual_weight_faltering | 0.31 | 0.65 | +0.34 |
+The model beats the rule on every trajectory type. The largest gains are progressive stunting (recall 0.19 → 0.65, +0.46),
+head-circumference deceleration (0.40 → 0.81, +0.41) and head-circumference acceleration (0.39 → 0.76, +0.37).
+The smallest are multi-indicator failure (0.56 → 0.76, +0.20) and rapid weight loss (0.58 → 0.79, +0.21), which the rule already catches fairly well.
 
 ---
 
-## 3. Early warning: detection and delay
+## 3. Early Warning: Detection & Delay
 
-Per deteriorating test child. Delay is counted in visits from the true onset visit. Children never flagged are counted at the last visit + 1.
-
-| Trajectory type | Children | Detected, rule | Detected, model | Median delay, rule | Median delay, model |
-|---|---|---|---|---|---|
-| gradual_weight_faltering | 21 | 47.6% | 85.7% | 3 | 1 |
-| hc_acceleration | 9 | 66.7% | 100% | 3 | 1 |
-| hc_deceleration | 9 | 77.8% | 100% | 3 | 1 |
-| multi_indicator_failure | 6 | 66.7% | 100% | 1 | 1 |
-| progressive_stunting | 15 | 40.0% | 93.3% | 3 | 2 |
-| rapid_weight_loss | 12 | 91.7% | 100% | 2 | 1 |
-| rising_bmi | 18 | 55.6% | 83.3% | 3 | 1 |
-| **All deteriorating** | **90** | **60.0%** | **92.2%** | **3** | **1** |
+Across the 90 deteriorating test children, the model flagged 92.2% and the rule 60.0%. The median first flag came 1 visit after onset
+for the model and 3 visits after for the rule. The model is earlier or equal for every type. The biggest detection gaps are progressive
+stunting (93.3% vs 40.0%) and gradual weight faltering (85.7% vs 47.6%). Multi-indicator failure is flagged at the same median delay
+(1 visit), although the model still catches more children (100% vs 66.7%). The model also raises pre-onset alarms for 23.3% of deteriorating children (rule 11.1%).
 
 <img width="1684" height="689" alt="early_warning" src="https://github.com/user-attachments/assets/c88b8ef3-093b-4e48-aabc-1121cdf1e2f1" />
 
+Per deteriorating test child. Delay is counted in visits from the true onset visit. Children never flagged are counted at the last visit + 1.
 
 ---
 
-## 4. What drives the model
+## 4. What Drives The Model
 
-Permutation importance on test children (drop in average precision when the feature is shuffled).
-
-| Rank | Feature | Importance |
-|---|---|---|
-| 1 | Weight: variability (SD of z-scores) | 0.0179 |
-| 2 | Head circumference: variability | 0.0169 |
-| 3 | Length/height: overall change | 0.0095 |
-| 4 | Head circumference: overall change | 0.0087 |
-| 5 | Weight: overall change | 0.0085 |
-| 6 | Weight: minimum z-score | 0.0082 |
-| 7 | Weight: slope (z per month) | 0.0076 |
-| 8 | Length/height: slope (z per month) | 0.0072 |
+The model relies most on how much weight and head circumference z-scores vary over the child's history (importance 0.0179 and 0.0169).
+Next come overall change in length/height (0.0095), head circumference (0.0087) and weight (0.0085), then minimum weight z-score and the slopes.
+Variability and change features matter more than any single current z-score, which is the point of using trajectories.
 
 Each alert in the app comes with a SHAP explanation for that visit:
 
@@ -101,7 +70,7 @@ Each alert in the app comes with a SHAP explanation for that visit:
 
 ---
 
-## 5. WHO engine validation (WHO Anthro Survey Analyser)
+## 5. WHO Engine Validation (WHO Anthro Survey Analyser)
 
 The z-score engine was compared with WHO's online **Anthro Survey Analyser** on **300 synthetic visits** (both sexes, 0–5 years, recumbent
 and standing, including the first weeks of life). Anthro flagged **0%** of visits as implausible. The reference output is in
@@ -114,6 +83,8 @@ and standing, including the first weeks of life). Anthro flagged **0%** of visit
 | Length/height-for-age | 0.012 | 0.012 |
 
 Where the old differences were (weight and BMI, largest per age band):
+Before the fix, all the larger differences were in the first weeks of life: up to 0.446 z at 0–13 days, 0.116 at 14–29 days and 0.054 at 30–38 days.
+From 39 days to 5 years the difference was at most 0.022.
 
 | Age | Visits | Max difference before |
 |---|---|---|
@@ -131,7 +102,7 @@ interpolation. Anthro has no head-circumference output, so that indicator is not
 
 ---
 
-## 6. Dataset and evaluation protocol
+## 6. Dataset & Evaluation Protocol
 
 | Item | Value |
 |---|---|
@@ -149,19 +120,16 @@ interpolation. Anthro has no head-circumference output, so that indicator is not
 
 ---
 
-## 7. What changed in this version
+## 7. What Changed In This Version
 
-| Area | Change |
-|---|---|
-| Labels | Fixed a stale list of deteriorating types; labels are derived from the 7 true types and cross-checked against the generator, which raises an error on mismatch |
-| Evaluation | Child-level split with leakage check, grouped CV, threshold on validation only, test used once |
-| Early warning | Delay from true onset, censored misses, pre-onset alarms, bootstrap CI over children |
-| Status logic | Final status is the more severe of rule and model; the model never downgrades a rule alert; missing model shows a banner and falls back to the rule |
-| WHO engine | Daily tables for weight and BMI, ±0.7 cm recumbent/standing adjustment, Anthro-verified (max difference 0.005) |
-| Input validation | Duplicate dates, height drops, WHO plausibility limits, new-patient confirmation; nothing is saved on failure |
-| Database | `analysis_results` keyed by `(visit_id, method, model_version)`, explanation stored as JSON |
-| UI | New header, status cards, colour-coded visit table (amber beyond ±2 SD, red beyond ±3 SD), light theme |
-| Tests | 115 tests, no database needed |
+- **Labels:** fixed a stale trajectory list; labels are now cross-checked against the generator.
+- **Evaluation:** child-level split, grouped CV, threshold on validation only, test used once.
+- **Early warning:** delay measured from true onset, with censored misses, pre-onset alarms and a bootstrap CI.
+- **Status logic:** final status is the more severe of rule and model; the model never downgrades a rule alert.
+- **WHO engine:** daily tables for weight and BMI, ±0.7 cm adjustment, Anthro-verified (max difference 0.005).
+- **Input validation:** duplicate dates, height drops, WHO limits; nothing is saved on failure.
+- **Database:** `analysis_results` keyed by visit, method and model version.
+- **UI:** new header, status cards, colour-coded visit table.
 
 ---
 
@@ -174,7 +142,7 @@ Risk summary
 
 ---
 
-## 9. Repo layout
+## 9. Repo Layout
 
 | Path | Purpose |
 |---|---|
